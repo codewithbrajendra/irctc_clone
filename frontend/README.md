@@ -1,6 +1,6 @@
-# Railway Connect — React UI
+# Railway Connect — React frontend
 
-Responsive React 19 + Vite UI for the IRCTC clone backend. Includes a sign-in form and a train-search interface.
+A readable, component-based React 19 + Vite UI for the IRCTC clone project.
 
 ## Run locally
 
@@ -10,31 +10,59 @@ npm install
 npm run dev
 ```
 
-Open the Vite URL shown in your terminal (usually http://localhost:5173).
+Open the local URL printed by Vite, normally `http://localhost:5173`.
 
-## Backend connection
+## Project structure
 
-By default, sign-in posts to `http://localhost:8080/auth/login` using the backend's expected body:
-
-```json
-{ "username": "your-email@example.com", "password": "your-password" }
+```text
+frontend/
+├── index.html
+├── package.json
+└── src/
+    ├── api/
+    │   └── client.js
+    ├── components/
+    │   └── Layout.jsx
+    ├── pages/
+    │   ├── HomePage.jsx
+    │   ├── LoginPage.jsx
+    │   ├── TrainSearchPage.jsx
+    │   ├── RegistrationPage.jsx
+    │   ├── PasswordRecoveryPage.jsx
+    │   ├── BookingPage.jsx
+    │   ├── PaymentPage.jsx
+    │   └── TicketHistoryPage.jsx
+    ├── App.jsx
+    ├── main.jsx
+    └── styles.css
 ```
 
-Override the API URL by creating `.env.local`:
+## Routes
+
+- `/` — Homepage
+- `/login` — Login
+- `/trains` — Train search
+- `/register` — Registration
+- `/recover` — Password recovery
+- `/booking` — Booking centre
+- `/payment` — Payment
+- `/tickets` — Ticket history
+
+## Backend integration
+
+Set the backend URL in `.env.local` if needed:
 
 ```env
 VITE_API_BASE_URL=http://localhost:8080
 ```
 
-The form expects the backend login response to include `accessToken` and optionally `refreshToken`. Tokens are stored in localStorage only when “Keep me signed in” is selected. For production, prefer secure, HttpOnly cookies and your backend's established token policy.
+The shared API client sends JSON requests and adds the saved access token as a Bearer token when available.
 
-## CORS
+- Login: `POST /auth/login` with `{ "username": "email", "password": "..." }`
+- Registration: `POST /auth/register` with user fields such as `name`, `email`, `password`, and `phone`
 
-The current Spring Security CORS configuration allows `http://localhost:4200`. For local Vite development, add `http://localhost:5173` to the allowed origins in `SecurityConfig.java` (or your shared CORS configuration) before testing the login request.
+The Spring Security CORS configuration in this repository currently allows `http://localhost:4200`. For Vite development, allow `http://localhost:5173` in the backend CORS configuration as well.
 
-## Current scope
+## Important scope notes
 
-- Sign-in UI with show/hide password, validation, loading and API error states
-- Responsive landing page and train search form
-- Train search currently validates the route locally; connect it to your route/train-search API to display live results
-- Registration and password recovery are UI entry points only until corresponding flows are wired up
+All eight requested pages are split into individual components and have responsive UI. Login and registration call the existing auth endpoints. The backend currently needs matching train-search, booking-details, ticket-history, and password-reset APIs before those screens can show real records. The payment page is a safe UI scaffold; connect it to the existing server-side payment initiation/confirmation flow and a payment gateway before accepting real payments. No real payment is processed by this UI.
