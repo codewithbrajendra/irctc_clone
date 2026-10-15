@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -61,6 +62,10 @@ public class UserController {
         }
 
         request.setEmail(request.getEmail().trim());
+        // Do not allow callers to choose IDs, timestamps, or roles during creation.
+        request.setId(null);
+        request.setCreatedAt(null);
+        request.setRoles(new ArrayList<>());
         UserDto created = userService.registerUser(request);
 
         // Never return even the encoded password to the caller.
