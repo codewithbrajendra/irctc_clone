@@ -24,7 +24,7 @@ export default function LoginPage() {
         method: "POST",
         body: JSON.stringify(form),
       });
-      if (!data.accessToken) throw new Error("The server did not return an access token.");
+      if (!(data.accessToken || data.token)) throw new Error("The server did not return an access token.");
       saveAuth(data, remember, form.username);
       navigate("/", { replace: true });
     } catch (err) {
