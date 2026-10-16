@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, ShieldCheck, TrainFront } from "lucide-react";
-import { apiRequest } from "../api/client";
+import { apiRequest, saveAuth } from "../api/client";
 
 export default function LoginPage() {
   const [form, setForm] = useState({ username: "", password: "" });
@@ -24,9 +24,9 @@ export default function LoginPage() {
         method: "POST",
         body: JSON.stringify(form),
       });
-      if (data.accessToken && remember) localStorage.setItem("railway_access_token", data.accessToken);
-      if (data.refreshToken && remember) localStorage.setItem("railway_refresh_token", data.refreshToken);
-      navigate("/");
+      if (!data.accessToken) throw new Error("The server did not return an access token.");
+      saveAuth(data, remember, form.username);
+      navigate("/", { replace: true });
     } catch (err) {
       setError(err.message || "Unable to sign in. Check your details and try again.");
     } finally {
