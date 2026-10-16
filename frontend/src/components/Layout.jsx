@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { TrainFront, LayoutDashboard, Search, CalendarCheck, CreditCard, Ticket, UserRound, LogOut, Menu, X, MapPinned, Train, Route, CalendarClock } from "lucide-react";
 import { useState } from "react";
-import { clearAuth, getAccessToken, getCurrentUser, hasRole } from "../api/client";
+import { clearAuth, getCurrentUser, hasRole, hasSession } from "../api/client";
 
 const navigation = [
   { to: "/", label: "Overview", icon: LayoutDashboard, end: true },
@@ -19,7 +19,7 @@ const adminNavigation = [
 export default function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const signedIn = Boolean(getAccessToken());
+  const signedIn = hasSession();
   const currentUser = signedIn ? getCurrentUser() : null;
   const admin = hasRole("ADMIN");
   const accountLabel = currentUser?.name || currentUser?.email || "My account";
