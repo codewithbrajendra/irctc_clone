@@ -69,7 +69,7 @@ public class SecurityConfig {
                                         "/v3/api-docs/**",
                                         "/webjars/**").
                                 permitAll()
-                                .requestMatchers(HttpMethod.GET,"/admin/stations/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET,"/admin/stations/**").hasAnyRole("NORMAL","ADMIN")
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/user/**").hasRole("NORMAL")
                                 .anyRequest()
