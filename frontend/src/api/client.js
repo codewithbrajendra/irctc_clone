@@ -6,6 +6,18 @@ const USER_KEY = "railway_user";
 export function getAccessToken() {
   return localStorage.getItem(ACCESS_KEY) || sessionStorage.getItem(ACCESS_KEY);
 }
+function tokenIsUnexpired(token) {
+  try {
+    const part = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const payload = JSON.parse(decodeURIComponent(escape(atob(part))));
+    return typeof payload.exp === "number" && payload.exp * 1000 > Date.now();
+  } catch { return false; }
+}
+export function hasSession() {
+  const token = getAccessToken();
+  const refresh = localStorage.getItem(REFRESH_KEY) || sessionStorage.getItem(REFRESH_KEY);
+  return Boolean((token && tokenIsUnexpired(token)) || (token && refresh));
+}
 function authStorage() {
   return localStorage.getItem(ACCESS_KEY) ? localStorage : sessionStorage;
 }
