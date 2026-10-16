@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { TrainFront, LayoutDashboard, Search, CalendarCheck, CreditCard, Ticket, UserRound, LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
+import { clearAuth, getAccessToken, getCurrentUser } from "../api/client";
 
 const navigation = [
   { to: "/", label: "Overview", icon: LayoutDashboard, end: true },
@@ -13,12 +14,13 @@ const navigation = [
 export default function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const signedIn = Boolean(localStorage.getItem("railway_access_token"));
+  const signedIn = Boolean(getAccessToken());
+  const currentUser = signedIn ? getCurrentUser() : null;
+  const accountLabel = currentUser?.name || currentUser?.email || "My account";
 
   function signOut() {
-    localStorage.removeItem("railway_access_token");
-    localStorage.removeItem("railway_refresh_token");
-    navigate("/login");
+    clearAuth();
+    navigate("/login", { replace: true });
   }
 
   return (
@@ -47,7 +49,7 @@ export default function Layout() {
         <header className="topbar">
           <button className="menu-toggle" onClick={() => setMenuOpen(v => !v)} aria-label="Toggle navigation">{menuOpen ? <X/> : <Menu/>}</button>
           <div className="breadcrumb"><span>Railway Connect</span><b>/</b><strong>Plan your journey</strong></div>
-          <NavLink className="topbar-account" to={signedIn ? "/tickets" : "/login"}><span className="avatar"><UserRound size={17}/></span><span>{signedIn ? "My account" : "Sign in"}</span></NavLink>
+          <NavLink className="topbar-account" to={signedIn ? "/tickets" : "/login"} title={accountLabel}><span className="avatar"><UserRound size={17}/></span><span>{signedIn ? accountLabel : "Sign in"}</span></NavLink>
         </header>
         <main className="page-content"><Outlet /></main>
         <footer className="main-footer"><span>Travel with confidence.</span><span>Independent railway booking demo · Not an official IRCTC website</span></footer>
