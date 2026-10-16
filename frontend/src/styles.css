@@ -240,3 +240,33 @@ button:disabled { opacity: .65; cursor: wait; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
 }
+
+
+/* Admin management screens */
+.admin-nav-note { margin: 22px 12px 10px; color: #7e8da3; font-size: 9px; font-weight: 800; letter-spacing: 1.2px; }
+.admin-page { gap: 20px; }
+.admin-form { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 15px; }
+.admin-field { display: grid; gap: 7px; min-width: 0; }
+.admin-field span { color: #64758d; font-size: 10px; font-weight: 700; }
+.admin-field input, .admin-filter input { width: 100%; min-width: 0; height: 41px; padding: 0 11px; border: 1px solid #dfe6f0; border-radius: 8px; outline: 0; background: #fff; color: #2d4261; font-size: 11px; }
+.admin-field input:focus, .admin-filter input:focus { border-color: #7da3e4; box-shadow: 0 0 0 3px #2c66bb12; }
+.admin-form-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
+.admin-list-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 17px; }
+.admin-list-heading h2 { margin: 0 0 6px; font: 800 17px Manrope,sans-serif; color: #233a5c; }
+.admin-list-heading p { margin: 0; color: var(--muted); font-size: 10px; }
+.admin-filter { display: flex; align-items: center; gap: 8px; }
+.admin-filter input { width: 110px; }
+.admin-table-wrap { width: 100%; overflow-x: auto; }
+.admin-table { width: 100%; border-collapse: collapse; font-size: 11px; white-space: nowrap; }
+.admin-table th { padding: 12px 13px; background: #f7f9fd; color: #718198; text-align: left; text-transform: capitalize; font-size: 9px; letter-spacing: .3px; }
+.admin-table td { padding: 13px; border-bottom: 1px solid #edf0f5; color: #415673; max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
+.admin-table tr:last-child td { border-bottom: 0; }
+.table-actions { display: flex; align-items: center; gap: 12px; }
+.danger-text { color: #b84848; }
+.admin-empty { padding: 25px 0; color: #8491a4; font-size: 11px; text-align: center; }
+@media (max-width: 560px) {
+  .admin-form { grid-template-columns: 1fr; }
+  .admin-list-heading { align-items: flex-start; flex-direction: column; }
+  .admin-filter { width: 100%; }
+  .admin-filter input { flex: 1; width: auto; }
+}
