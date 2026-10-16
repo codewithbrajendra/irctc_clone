@@ -42,7 +42,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource configurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4200")); // Frontend origin
+        config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:4200")); // Vite and optional Angular frontend origins
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
@@ -69,7 +69,7 @@ public class SecurityConfig {
                                         "/v3/api-docs/**",
                                         "/webjars/**").
                                 permitAll()
-                                .requestMatchers(HttpMethod.GET,"/admin/stations/**").hasAnyRole("NORMAL","ADMIN")
+                                .requestMatchers(HttpMethod.GET,"/admin/stations/**").hasRole("ADMIN")
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/user/**").hasRole("NORMAL")
                                 .anyRequest()
