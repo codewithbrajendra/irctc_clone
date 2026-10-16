@@ -12,19 +12,19 @@ import StationAdminPage from "./pages/StationAdminPage.jsx";
 import TrainAdminPage from "./pages/TrainAdminPage.jsx";
 import TrainRouteAdminPage from "./pages/TrainRouteAdminPage.jsx";
 import TrainScheduleAdminPage from "./pages/TrainScheduleAdminPage.jsx";
-import { getAccessToken, hasRole } from "./api/client";
+import { hasSession, hasRole } from "./api/client";
 
 function RequireAuth() {
   const location = useLocation();
-  return getAccessToken() ? <Layout /> : <Navigate to="/login" replace state={{ from: location }} />;
+  return hasSession() ? <Layout /> : <Navigate to="/login" replace state={{ from: location }} />;
 }
 function RequireAdmin({ children }) {
-  if (!getAccessToken()) return <Navigate to="/login" replace />;
+  if (!hasSession()) return <Navigate to="/login" replace />;
   if (!hasRole("ADMIN")) return <Navigate to="/" replace />;
   return children;
 }
 function GuestOnly({ children }) {
-  return getAccessToken() ? <Navigate to="/" replace /> : children;
+  return hasSession() ? <Navigate to="/" replace /> : children;
 }
 export default function App() {
   return <BrowserRouter><Routes>
