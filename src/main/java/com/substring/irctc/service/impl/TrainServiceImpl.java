@@ -80,89 +80,30 @@ public class TrainServiceImpl implements TrainService {
         trainRepository.delete(existingTrain);
     }
 
-    //    This method is for user to search for trains on specific date from source to destination with available seats
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<AvailableTrainResponse> userTrainSearch(UserTrainSearchRequest request) {
-// Fetch trains from repository with source and destination
-        List<Train> matchedTrains = this.trainRepository.findTrainBySourceAndDestination(
-                request.getSourceStationId(), request.getDestinationStationId());
-
-// Use stream to filter valid trains directly
-        List<AvailableTrainResponse> responseList = matchedTrains.stream()
-                .filter(train -> {
-                    // Find source and destination station orders in a single loop
-                    Integer sourceStationOrder = null;
-                    Integer destinationStationOrder = null;
-
-                    for (TrainRoute trainRoute : train.getRoutes()) {
-                        if (trainRoute.getStation().getId().equals(request.getSourceStationId())) {
-                            sourceStationOrder = trainRoute.getStationOrder();
-                        } else if (trainRoute.getStation().getId().equals(request.getDestinationStationId())) {
-                            destinationStationOrder = trainRoute.getStationOrder();
-                        }
-
-                        // Early exit if both station orders are found
-                        if (sourceStationOrder != null && destinationStationOrder != null) {
-                            break;
-                        }
-                    }
-
-                    // Check for station order validity and the schedule date condition
-                    boolean validOrder = sourceStationOrder != null && destinationStationOrder != null &&
-                            sourceStationOrder < destinationStationOrder;
-
-                    boolean runOnThatDay = train.getSchedules().stream()
-                            .anyMatch(schedule -> schedule.getRunDate().equals(request.getJourneyDate()));
-
-                    return validOrder && runOnThatDay;
-                })
-                .map(train -> {
-                    // Find the matching schedule for the journey date
-                    TrainSchedule trainSchedule = train.getSchedules().stream()
-                            .filter(sch -> sch.getRunDate().equals(request.getJourneyDate()))
-                            .findFirst().orElse(null);
-
-                    if (trainSchedule == null) {
-                        return null;  // Skip if there's no matching schedule
-                    }
-
-                    // Find the source route for the train
-                    TrainRoute sourceRoute = train.getRoutes().stream()
-                            .filter(route -> route.getStation().getId().equals(request.getSourceStationId()))
-                            .findFirst().orElse(null);
-
-                    if (sourceRoute == null) {
-                        return null;  // Skip if there's no source route
-                    }
-
-                    // Map seat types and prices
-                    Map<CoachType, Integer> seatMap = new HashMap<>();
-                    Map<CoachType, Double> priceMap = new HashMap<>();
-
-                    trainSchedule.getTrainSeats().forEach(trainSeat -> {
-                        seatMap.merge(trainSeat.getCoachType(), trainSeat.getAvailableSeats(), Integer::sum);
-                        priceMap.putIfAbsent(trainSeat.getCoachType(), trainSeat.getPrice());
-                    });
-
-                    // Build the response for the valid train
-                    return AvailableTrainResponse.builder()
-                            .trainId(train.getId())
-                            .trainNumber(train.getNumber())
-                            .trainName(train.getName())
-                            .departureTime(sourceRoute.getDepartureTime())
-                            .arrivalTime(sourceRoute.getArrivalTime())
-                            .seatsAvailable(seatMap)
-                            .priceByCoach(priceMap)
-                            .scheduleDate(trainSchedule.getRunDate())
-                            .trainScheduleId(trainSchedule.getId())
-                            .build();
-                })
-                .filter(Objects::nonNull)  // Remove null responses (invalid trains)
-                .collect(Collectors.toList());  // Collect results into a list
-
-// Return the final list of valid available train responses
-        return responseList;
+        com.substring.irctc.service.JourneyRules.validate(request.getSourceStationId(), request.getDestinationStationId(), request.getJourneyDate());
+        List<AvailableTrainResponse> results = new ArrayList<>();
+        for (TrainSchedule schedule : trainScheduleRepository.search(request.getSourceStationId(), request.getDestinationStationId(), request.getJourneyDate())) {
+            Train train = schedule.getTrain();
+            TrainRoute source = com.substring.irctc.service.JourneyRules.route(train, request.getSourceStationId());
+            TrainRoute destination = com.substring.irctc.service.JourneyRules.route(train, request.getDestinationStationId());
+            if (com.substring.irctc.service.JourneyRules.departed(schedule, source)) continue;
+            Map<CoachType, Integer> seats = new EnumMap<>(CoachType.class);
+            Map<CoachType, Double> prices = new EnumMap<>(CoachType.class);
+            for (TrainSeat coach : schedule.getTrainSeats()) {
+                if (request.getCoachType() != null && coach.getCoachType() != request.getCoachType()) continue;
+                if (coach.getAvailableSeats() == null || coach.getAvailableSeats() <= 0 || coach.getPrice() == null || !Double.isFinite(coach.getPrice()) || coach.getPrice() < 0) continue;
+                seats.merge(coach.getCoachType(), coach.getAvailableSeats(), Integer::sum);
+                prices.merge(coach.getCoachType(), coach.getPrice(), Math::min);
+            }
+            if (request.getCoachType() != null && seats.isEmpty()) continue;
+            results.add(AvailableTrainResponse.builder().trainId(train.getId()).trainNumber(train.getNumber())
+                    .trainName(train.getName()).trainScheduleId(schedule.getId()).scheduleDate(schedule.getRunDate())
+                    .departureTime(source.getDepartureTime()).arrivalTime(destination.getArrivalTime())
+                    .seatsAvailable(seats).priceByCoach(prices).build());
+        }
+        return results;
     }
-
-
 }

@@ -1,5 +1,6 @@
 package com.substring.irctc.dto;
 
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,8 +9,11 @@ import lombok.Setter;
 public class BookingPassengerDto {
 
     private  Long id;
-    private  String name;
+    @NotBlank @Size(max = 100)
+    private String name;
+    @NotNull @Min(1) @Max(120)
     private Integer age;
+    @NotBlank @Pattern(regexp = "MALE|FEMALE|OTHER")
     private String gender;
     private String seatNumber;
     private String coachId;

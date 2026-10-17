@@ -270,3 +270,24 @@ button:disabled { opacity: .65; cursor: wait; }
   .admin-filter { width: 100%; }
   .admin-filter input { flex: 1; width: auto; }
 }
+
+/* Search, live inventory and tickets */
+.journey-fields { border: 0; padding: 0; margin: 0; display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); gap: 20px; align-items: end; }
+.journey-fields .admin-field { min-width: 0; }
+.journey-fields select, .passenger-row select { min-height: 44px; width: 100%; border: 1px solid #d8e1ed; border-radius: 8px; background: white; padding: 10px; }
+.station-picker { position: relative; min-width: 0; display: grid; gap: 8px; }
+.station-picker label { font-size: 13px; font-weight: 600; }
+.station-options { position: absolute; top: 100%; left: 0; right: 0; z-index: 20; max-height: 250px; overflow: auto; background: white; border: 1px solid #d8e1ed; border-radius: 8px; box-shadow: 0 8px 24px #14223c18; }
+.station-options button { display: block; width: 100%; padding: 12px; text-align: left; border: 0; background: white; color: #213454; cursor: pointer; }
+.station-options button:hover, .station-options button:focus { background: #edf3ff; }
+.station-options p { padding: 10px; font-size: 13px; }
+.coach-options { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 20px; }
+.coach-option { display: grid; gap: 10px; padding: 16px; border: 1px solid #d8e1ed; border-radius: 10px; min-width: 190px; }
+.passenger-list { border: 0; padding: 0; margin: 0; }
+.passenger-list legend { font-weight: 700; margin-bottom: 16px; }
+.passenger-row { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; align-items: end; margin-bottom: 16px; }
+.passenger-row label { display: grid; gap: 8px; }
+.ticket-heading { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.booking-ticket > p { margin: 14px 0; }
+.pnr { overflow-wrap: anywhere; }
+@media (max-width: 700px) { .journey-fields, .passenger-row { grid-template-columns: 1fr; } .journey-fields .swap-control { justify-self: center; } .coach-option { width: 100%; } }

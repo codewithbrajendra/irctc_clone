@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
@@ -18,8 +19,10 @@ import java.util.Map;
 public class JwtHelper {
 
 
-    private static final long ACCESS_TOKEN_VALIDITY = 30 * 1000; // 5 minutes
-    private static final long REFRESH_TOKEN_VALIDITY = 60*60 * 1000; // 30 minutes
+    @Value("${security.jwt.access-token-validity-ms:900000}")
+    private long accessTokenValidity;
+    @Value("${security.jwt.refresh-token-validity-ms:3600000}")
+    private long refreshTokenValidity;
 
     private static final String SECRET = "asohgfasogfasiogfhaosfakshfgoafghasihfgoasghiasfgiowhtioawhtosagbkasbgoasghgiasghasoghaskgbfasoghoasghisa";
 
@@ -37,7 +40,7 @@ public class JwtHelper {
     public String generateAccessToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("token_type", "access_token");
-        return buildToken(claims, userDetails.getUsername(), ACCESS_TOKEN_VALIDITY);
+        return buildToken(claims, userDetails.getUsername(), accessTokenValidity);
 
 
     }
@@ -45,7 +48,7 @@ public class JwtHelper {
     public String generateRefreshToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("token_type", "refresh_token");
-        return buildToken(claims, userDetails.getUsername(), REFRESH_TOKEN_VALIDITY);
+        return buildToken(claims, userDetails.getUsername(), refreshTokenValidity);
     }
 
 
