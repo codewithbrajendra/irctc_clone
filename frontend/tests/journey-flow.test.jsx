@@ -43,11 +43,13 @@ test("search, select class, submit passengers and retrieve owned ticket history"
   await user.click(screen.getByRole("button", { name: "Create booking" }));
   expect(await screen.findByText("test-owned-pnr")).toBeTruthy();
   expect(screen.getByText(/Payment has not been collected/)).toBeTruthy();
+  expect(screen.getByRole("button", { name: "Download ticket PDF" })).toBeTruthy();
   const booking = JSON.parse(requests.find(r => r.url.endsWith("/user/bookings")).options.body);
   expect(booking).toMatchObject({ trainScheduleId: 20, sourceStationId: 1, destinationStationId: 2, coachType: "AC" });
   expect(booking.userId).toBeUndefined();
   await user.click(screen.getByRole("link", { name: "View ticket history" }));
   expect(await screen.findByText("test-owned-pnr")).toBeTruthy();
+  expect(screen.getByRole("button", { name: "Download ticket PDF" })).toBeTruthy();
   await user.type(screen.getByLabelText("Search ticket history"), "12345");
   await user.click(screen.getByRole("button", { name: "Search history" }));
   await waitFor(() => expect(requests.some(r => r.url.includes("query=12345"))).toBe(true));

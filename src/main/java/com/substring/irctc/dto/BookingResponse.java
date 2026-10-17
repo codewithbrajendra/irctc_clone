@@ -14,6 +14,8 @@ import java.util.List;
 @Setter
 public class BookingResponse {
     private Long bookingId;
+    private Integer distanceKm;
+    private String transactionId;
     private Long trainScheduleId;
     private String trainName;
     private String trainNumber;

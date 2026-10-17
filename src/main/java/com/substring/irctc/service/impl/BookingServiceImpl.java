@@ -107,10 +107,18 @@ public class BookingServiceImpl implements BookingService {
         result.setDestinationStation(mapper.map(booking.getDestinationStation(), StationDto.class));
         result.setDepartureTime(JourneyRules.route(schedule.getTrain(), booking.getSourceStation().getId()).getDepartureTime());
         result.setArrivalTime(JourneyRules.route(schedule.getTrain(), booking.getDestinationStation().getId()).getArrivalTime());
+        TrainRoute source = JourneyRules.route(schedule.getTrain(), booking.getSourceStation().getId());
+        TrainRoute destination = JourneyRules.route(schedule.getTrain(), booking.getDestinationStation().getId());
+        if (source.getDistanceFromSource() != null && destination.getDistanceFromSource() != null) {
+            int distance = destination.getDistanceFromSource() - source.getDistanceFromSource();
+            if (distance >= 0) result.setDistanceKm(distance);
+        }
+        result.setTransactionId(booking.getPayment() == null ? null : booking.getPayment().getTansactionId());
         result.setPassengers(booking.getPassengers().stream().map(p -> {
             BookingPassengerDto dto = new BookingPassengerDto();
             dto.setId(p.getId()); dto.setName(p.getName()); dto.setAge(p.getAge()); dto.setGender(p.getGender());
             dto.setSeatNumber(p.getSeatNumber()); dto.setCoachId(String.valueOf(p.getTrainSeat().getId()));
+            dto.setCoachType(p.getTrainSeat().getCoachType()); dto.setCoachOrder(p.getTrainSeat().getTrainSeatOrder());
             return dto;
         }).toList());
         return result;
