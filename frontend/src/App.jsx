@@ -12,22 +12,28 @@ import StationAdminPage from "./pages/StationAdminPage.jsx";
 import TrainAdminPage from "./pages/TrainAdminPage.jsx";
 import TrainRouteAdminPage from "./pages/TrainRouteAdminPage.jsx";
 import TrainScheduleAdminPage from "./pages/TrainScheduleAdminPage.jsx";
-import { hasSession, hasRole } from "./api/client";
+import { hasRole } from "./api/client";
+import useSession from "./auth/useSession";
+import { createContext, useContext } from "react";
+
+const SessionContext = createContext(null);
 
 function RequireAuth() {
   const location = useLocation();
-  return hasSession() ? <Layout /> : <Navigate to="/login" replace state={{ from: location }} />;
+  return useContext(SessionContext).signedIn ? <Layout /> : <Navigate to="/login" replace state={{ from: location }} />;
 }
 function RequireAdmin({ children }) {
-  if (!hasSession()) return <Navigate to="/login" replace />;
+  if (!useContext(SessionContext).signedIn) return <Navigate to="/login" replace />;
   if (!hasRole("ADMIN")) return <Navigate to="/" replace />;
   return children;
 }
 function GuestOnly({ children }) {
-  return hasSession() ? <Navigate to="/" replace /> : children;
+  return useContext(SessionContext).signedIn ? <Navigate to="/" replace /> : children;
 }
 export default function App() {
-  return <BrowserRouter><Routes>
+  const session = useSession();
+  if (!session.ready) return <p role="status">Restoring your session…</p>;
+  return <SessionContext.Provider value={session}><BrowserRouter><Routes>
     <Route path="/login" element={<GuestOnly><LoginPage /></GuestOnly>} />
     <Route path="/register" element={<GuestOnly><RegistrationPage /></GuestOnly>} />
     <Route path="/recover" element={<GuestOnly><PasswordRecoveryPage /></GuestOnly>} />
@@ -43,5 +49,5 @@ export default function App() {
       <Route path="admin/train-schedules" element={<RequireAdmin><TrainScheduleAdminPage /></RequireAdmin>} />
     </Route>
     <Route path="*" element={<Navigate to="/" replace />} />
-  </Routes></BrowserRouter>;
+  </Routes></BrowserRouter></SessionContext.Provider>;
 }
