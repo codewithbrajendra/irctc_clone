@@ -99,7 +99,7 @@ async function refreshAccessToken() {
 export async function ensureSession() {
   return hasSession() || await refreshAccessToken();
 }
-export async function apiRequest(path, options = {}) {
+async function authenticatedResponse(path, options = {}) {
   const protectedRequest = !path.startsWith("/auth/");
   if (protectedRequest && !await ensureSession()) throw new Error("Your session has expired. Please sign in again.");
   const send = () => fetch(`${API_BASE}${path}`, {
@@ -108,11 +108,24 @@ export async function apiRequest(path, options = {}) {
   });
   let response = await send();
   if (response.status === 401 && protectedRequest && await refreshAccessToken()) response = await send();
-  const body = await response.json().catch(() => ({}));
   if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
     if (response.status === 401 && protectedRequest) clearAuth();
     throw new Error(body.message || body.error || Object.values(body).filter(v => typeof v === "string").join(" ") || `Request failed (${response.status})`);
   }
-  return body;
+  return response;
+}
+export async function apiRequest(path, options = {}) {
+  const response = await authenticatedResponse(path, options);
+  return response.json().catch(() => ({}));
+}
+export async function apiDownload(path, options = {}) {
+  const response = await authenticatedResponse(path, {
+    ...options, headers: { Accept: "application/pdf, application/json", ...options.headers },
+  });
+  if (!response.headers.get("Content-Type")?.toLowerCase().startsWith("application/pdf")) {
+    throw new Error("The server did not return a PDF ticket. Please try again.");
+  }
+  return response.blob();
 }
 export { API_BASE };

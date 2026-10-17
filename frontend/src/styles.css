@@ -291,3 +291,6 @@ button:disabled { opacity: .65; cursor: wait; }
 .booking-ticket > p { margin: 14px 0; }
 .pnr { overflow-wrap: anywhere; }
 @media (max-width: 700px) { .journey-fields, .passenger-row { grid-template-columns: 1fr; } .journey-fields .swap-control { justify-self: center; } .coach-option { width: 100%; } }
+.ticket-actions { display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
+.ticket-download { max-width: 340px; }
+.ticket-download .alert { margin: 10px 0 0; }

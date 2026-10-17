@@ -1,10 +1,11 @@
+import DownloadTicketButton from "./DownloadTicketButton";
 import { money } from "../api/journeys";
 
 export default function BookingTicket({ booking }) {
   return <article className="content-card booking-ticket">
     <div className="ticket-heading"><div><h2>{booking.trainName} <small>({booking.trainNumber})</small></h2>
       <p>{booking.journeyDate} · {booking.sourceStation?.name} → {booking.destinationStation?.name}</p></div>
-      <strong>{booking.bookingStatus}</strong></div>
+      <div className="ticket-actions"><strong>{booking.bookingStatus}</strong><DownloadTicketButton pnr={booking.pnr} bookingId={booking.bookingId}/></div></div>
     <p><strong>PNR:</strong> <span className="pnr">{booking.pnr}</span></p>
     <p>Departure: {booking.departureTime || "—"} · Arrival: {booking.arrivalTime || "—"}</p>
     <p><strong>Total fare: {money(booking.totalFare)}</strong> · Payment: {booking.paymentStatus}</p>

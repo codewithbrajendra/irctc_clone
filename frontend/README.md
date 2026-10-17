@@ -126,3 +126,17 @@ npm run build
 Backend tests use an isolated in-memory H2 database under the test profile, not your local MySQL database. They exercise authentication, route search, cross-coach allocation, ownership, sold-out behavior, concurrent requests, admin inventory and refresh-token misuse. Mockito uses the subclass mock maker to avoid requiring dynamic agent attachment in restricted test environments.
 
 Frontend tests include an authentication lifecycle regression and rendered component interactions for search → booking → history → logout, invalid station entry and normal-user admin-route denial. Frontend interaction tests mock API responses; backend integration tests exercise real persistence and Spring Security independently. A manual MySQL/browser run is still useful before merging.
+
+## Download a ticket PDF
+
+After creating a booking, select **Download ticket PDF** on its confirmation card. The same button is on every ticket card in **Ticket history**, including PNR lookup results.
+
+- API: `GET /user/bookings/pnr/{pnr}/ticket.pdf`
+- Authentication: `Authorization: Bearer <access-token>`; ownership is resolved from the authenticated principal, not a request user ID. A different account, including an administrator, cannot download another account's ticket.
+- Success: `200 application/pdf`, `Content-Disposition: attachment; filename="ticket-{bookingId}.pdf"` and `Cache-Control: private, no-store, max-age=0`.
+- Missing or unowned PNR: `404`; unauthenticated requests: `401`.
+- PDF generation is entirely in Java. `BookingPdfService` resolves the saved booking, and `pdf/TicketPdfTemplate.java` produces the reference-style reservation slip with Apache PDFBox. Template notes and embedded font licenses are in `src/main/resources/templates/ticket/`.
+- The browser fetches the binary response with the shared token-refresh handling and saves a Blob. It does not generate the PDF or put credentials in download URLs. Errors are shown on the card, and an error response is not saved as a PDF.
+- Downloading does not change bookings, seat availability or payment status. Unpaid reservations remain visibly `NOT_PAID`. Quota and berth information are not modelled, so they are not invented. The existing missing overnight day offsets also mean arrival date is not inferred in the PDF.
+
+The backend includes PDF extraction and authorization tests plus visual QA fixtures generated with synthetic data under `target/ticket-preview/`. Fonts are bundled for consistent deployment. DejaVu covers its supported Unicode glyphs; unsupported glyphs use `?`, and complex-script shaping is not implemented.

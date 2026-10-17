@@ -145,6 +145,28 @@ class BookingFlowIntegrationTest {
                 .contentType("application/json").content(json.writeValueAsString(coach))).andExpect(status().isCreated())
                 .andExpect(jsonPath("$.availableSeats").value(10)).andExpect(jsonPath("$.seatNumberToAssign").value(1));
     }
+    @Test void ticketPdfIsAnOwnerOnlyAttachmentWithoutChangingBooking() throws Exception {
+        JsonNode booking = json.readTree(book(ownerToken,1,201).getResponse().getContentAsString());
+        String path = "/user/bookings/pnr/" + booking.get("pnr").asText() + "/ticket.pdf";
+        var result = mvc.perform(get(path).header("Authorization", "Bearer " + ownerToken)
+                .accept("application/pdf", "application/json"))
+                .andExpect(status().isOk()).andExpect(content().contentType("application/pdf"))
+                .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString("attachment")))
+                .andExpect(header().string("Cache-Control", "private, no-store, max-age=0"))
+                .andReturn();
+        try (var document = org.apache.pdfbox.Loader.loadPDF(result.getResponse().getContentAsByteArray())) {
+            assertThat(new org.apache.pdfbox.text.PDFTextStripper().getText(document)).contains("Passenger 0", "NOT_PAID");
+        }
+        mvc.perform(get(path)).andExpect(status().isUnauthorized());
+        mvc.perform(get(path).header("Authorization", "Bearer " + otherToken).accept("application/pdf", "application/json"))
+                .andExpect(status().isNotFound());
+        // Administrators may use customer APIs, but may not download another account's ticket.
+        mvc.perform(get(path).header("Authorization", "Bearer " + adminToken).accept("application/pdf", "application/json"))
+                .andExpect(status().isNotFound());
+        mvc.perform(get("/user/bookings/pnr/missing/ticket.pdf").header("Authorization", "Bearer " + ownerToken)
+                .accept("application/pdf", "application/json")).andExpect(status().isNotFound());
+        assertThat(seats.findByTrainScheduleId(schedule.getId()).stream().mapToInt(TrainSeat::getAvailableSeats).sum()).isEqualTo(1);
+    }
     @Test void refreshTokenCannotBeUsedAsAccessToken() throws Exception {
         String refresh = jwt.generateRefreshToken(org.springframework.security.core.userdetails.User.withUsername(ownerEmail).password("x").roles("NORMAL").build());
         mvc.perform(get("/user/bookings").header("Authorization","Bearer " + refresh)).andExpect(status().isUnauthorized());

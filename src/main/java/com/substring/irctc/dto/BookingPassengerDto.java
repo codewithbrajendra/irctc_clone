@@ -17,4 +17,6 @@ public class BookingPassengerDto {
     private String gender;
     private String seatNumber;
     private String coachId;
+    private com.substring.irctc.entity.CoachType coachType;
+    private Integer coachOrder;
 }
