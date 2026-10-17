@@ -1,0 +1,73 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Railway Connect reservation slip</title>
+  <!-- This link makes the source file previewable in a browser; PDF CSS is inlined below. -->
+  <link rel="stylesheet" href="ticket.css" th:remove="all" />
+  <!-- Inject only the trusted backend stylesheet. Booking values below use escaped th:text. -->
+  <style type="text/css" th:utext="${ticketCss}"></style>
+</head>
+<body>
+  <div class="page-footer">Railway Connect | Reservation details <span class="page-number">Page <span class="current-page"></span> of <span class="total-pages"></span></span></div>
+
+  <header class="ticket-heading">
+    <h1>Electronic Reservation Slip (ERS)</h1>
+    <p class="subtitle">Railway Connect - demonstration booking</p>
+  </header>
+
+  <table class="brand-table"><tr>
+    <td class="brand">RAILWAY<br /><span>CONNECT</span></td>
+    <td class="brand-right"><strong>YOUR JOURNEY DETAILS</strong><br /><span>Generated from your saved booking</span></td>
+  </tr></table>
+
+  <table class="journey-table">
+    <thead><tr><th>Booked from</th><th><div class="boarding-ribbon">Boarding at<span class="arrow-tip"></span></div></th><th>To</th></tr></thead>
+    <tbody>
+      <tr class="stations"><td th:text="${ticket.sourceStation}">Bhopal Junction (BPL)</td><td class="boarding" th:text="${ticket.sourceStation}">Bhopal Junction (BPL)</td><td th:text="${ticket.destinationStation}">Vrindavan Road (VRVR)</td></tr>
+      <tr><td>Journey date: <span th:text="${ticket.journeyDate}">20-Oct-2026</span></td><td class="boarding">Departure: <span th:text="${ticket.departureTime}">21:00</span></td><td>Arrival time: <span th:text="${ticket.arrivalTime}">07:00</span></td></tr>
+    </tbody>
+  </table>
+
+  <table class="metadata-table">
+    <tbody>
+      <tr><th>PNR</th><th>Train No. / Name</th><th>Class</th></tr>
+      <tr class="highlight"><td class="pnr" th:text="${ticket.booking.pnr}">PNR</td><td><span th:text="${ticket.booking.trainNumber}">20001</span> / <span th:text="${ticket.booking.trainName}">Bhopal Vrindavan Express</span></td><td th:text="${ticket.classes}">AC</td></tr>
+      <tr><th>Quota</th><th>Distance</th><th>Booking date</th></tr>
+      <tr><td>Not recorded</td><td th:text="${ticket.distance}">580 KM</td><td th:text="${ticket.bookedAt}">18-Oct-2026 09:15</td></tr>
+    </tbody>
+  </table>
+
+  <section class="passenger-section">
+    <h2>Passenger Details</h2>
+    <table class="passenger-table">
+      <colgroup><col class="number-col" /><col class="name-col" /><col class="age-col" /><col class="gender-col" /><col class="status-col" /><col class="status-col" /></colgroup>
+      <thead><tr><th>#</th><th>Name</th><th>Age</th><th>Gender</th><th>Booking status</th><th>Current status</th></tr></thead>
+      <tbody>
+        <!-- Add/remove passenger columns in colgroup, thead and this repeating row together. -->
+        <tr th:each="passenger : ${ticket.passengers}">
+          <td th:text="${passenger.number}">1</td>
+          <td th:text="${passenger.name}">Demo Passenger</td>
+          <td th:text="${passenger.age}">30</td>
+          <td th:text="${passenger.gender}">MALE</td>
+          <td><span th:text="${passenger.status}">CONFIRMED</span> / Coach <span th:text="${passenger.coachOrder}">1</span> (ID <span th:text="${passenger.coachId}">1001</span>) / Seat <span th:text="${passenger.seatNumber}">1</span></td>
+          <td><span th:text="${passenger.status}">CONFIRMED</span> / Coach <span th:text="${passenger.coachOrder}">1</span> (ID <span th:text="${passenger.coachId}">1001</span>) / Seat <span th:text="${passenger.seatNumber}">1</span></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(ticket.passengers)}"><td colspan="6">No passenger details recorded.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="payment-section">
+    <h2 class="fare">Total fare: INR <span th:text="${ticket.fare}">1600.00</span></h2>
+    <p class="payment-status">Payment status: <span th:text="${ticket.booking.paymentStatus}">NOT_PAID</span></p>
+    <p>Transaction ID: <span th:text="${ticket.transactionId}">Not recorded</span></p>
+    <p class="note" th:if="${ticket.unpaid}">This reservation is not marked as paid. Downloading this PDF does not confirm payment.</p>
+    <p class="cancelled" th:if="${ticket.cancelled}">This booking is cancelled.</p>
+  </section>
+
+  <section class="ticket-notes">
+    <p class="demo-note">This is a Railway Connect demonstration reservation slip, not an official IRCTC ticket.</p>
+    <p>Boarding station is the booked source station. Quota, berth type and arrival date are not recorded in this version. Route times alone do not establish next-day arrival.</p>
+  </section>
+</body>
+</html>
