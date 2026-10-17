@@ -47,6 +47,22 @@ class TicketPdfTemplateTest {
         Files.createDirectories(Path.of("target/ticket-preview"));
         Files.write(Path.of("target/ticket-preview/reservation.pdf"), bytes);
     }
+    @Test void bookingTextIsEscapedAndConditionalSectionsFollowSavedState() throws Exception {
+        BookingResponse t = example();
+        t.getPassengers().get(0).setName("<img src='https://invalid.example/evil'/> & Guest");
+        t.setPaymentStatus(PaymentStatus.PAID);
+        t.setBookingStatus(BookingStatus.CANCELLED);
+        try (var doc = Loader.loadPDF(new TicketPdfTemplate().render(t))) {
+            String text = new PDFTextStripper().getText(doc);
+            assertThat(text).contains("<img", "& Guest", "This booking is cancelled.");
+            assertThat(text.replaceAll("\\s", "")).contains("invalid.example/evil");
+            assertThat(text).doesNotContain("This reservation is not marked as paid.");
+        }
+        t.setPassengers(List.of());
+        try (var doc = Loader.loadPDF(new TicketPdfTemplate().render(t))) {
+            assertThat(new PDFTextStripper().getText(doc)).contains("No passenger details recorded.");
+        }
+    }
     @Test void longNamesAndMultiplePassengersContinueWithoutDroppingData() throws Exception {
         BookingResponse t=example();
         t.setTrainName("A very long train service name ".repeat(4));
@@ -63,7 +79,10 @@ class TicketPdfTemplateTest {
             assertThat(doc.getNumberOfPages()).isGreaterThan(1);
             String text=new PDFTextStripper().getText(doc);
             for (var p:passengers) assertThat(text.replaceAll("\\s", "")).contains(p.getName().replaceAll("\\s", ""));
-            assertThat(text).contains("Passenger Details - continued", "Transaction ID: Not recorded", "Quota");
+            assertThat(text).contains("Transaction ID: Not recorded", "Quota");
+            PDFTextStripper continuation = new PDFTextStripper();
+            continuation.setStartPage(2); continuation.setEndPage(2);
+            assertThat(continuation.getText(doc)).contains("Booking status", "Current status");
         }
         Files.createDirectories(Path.of("target/ticket-preview"));
         Files.write(Path.of("target/ticket-preview/long-reservation.pdf"),bytes);

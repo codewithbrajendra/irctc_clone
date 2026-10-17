@@ -1,0 +1,55 @@
+/* PDF layout uses CSS 2.1 and paged-media rules. Avoid browser-only flex/grid. */
+@page {
+  size: A4;
+  margin: 28pt;
+  border: 1.2pt solid #000;
+  padding: 12pt 12pt 34pt;
+  @bottom-left { content: element(ticketFooter); }
+}
+body { font-family: "Ticket Sans", sans-serif; font-size: 9pt; color: #000; line-height: 1.4; margin: 0; }
+h1, h2, p { margin: 0; }
+header, section { display: block; }
+h1 { font-size: 16pt; text-align: center; font-weight: bold; }
+h2 { font-size: 12pt; margin: 6pt 0 18pt; }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+th { font-weight: bold; }
+td, th { vertical-align: top; overflow-wrap: break-word; word-wrap: break-word; }
+.ticket-heading { text-align: center; margin-bottom: 18pt; }
+.subtitle { color: #555e69; margin-top: 5pt; }
+.brand-table { margin-bottom: 22pt; }
+.brand { color: #2368a7; font-size: 17pt; font-weight: bold; line-height: 1.15; }
+.brand span { font-size: 12pt; }
+.brand-right { text-align: right; padding-top: 6pt; color: #2368a7; font-size: 10pt; }
+.brand-right span { color: #555e69; font-size: 8pt; }
+.journey-table { border-bottom: 1pt solid #000; margin-bottom: 8pt; }
+.journey-table th, .journey-table td { width: 33.333%; text-align: center; padding: 5pt 7pt; }
+.journey-table th { font-size: 10pt; padding-bottom: 14pt; }
+.journey-table .stations { font-size: 10pt; }
+.journey-table tbody tr:last-child td { padding-bottom: 18pt; }
+.boarding { font-weight: bold; }
+.boarding-ribbon { background: #2368a7; color: #fff; position: relative; margin-right: 10pt; padding: 1pt 0; }
+.arrow-tip { position: absolute; right: -12pt; top: -4pt; width: 0; height: 0; border-top: 12pt solid transparent; border-bottom: 12pt solid transparent; border-left: 12pt solid #2368a7; }
+.metadata-table { border-bottom: 1pt solid #000; }
+.metadata-table th, .metadata-table td { width: 33.333%; text-align: center; padding: 4pt 7pt; }
+.metadata-table td { padding-bottom: 15pt; }
+.highlight { color: #2368a7; font-weight: bold; font-size: 10pt; }
+.pnr { word-break: break-all; }
+.passenger-section { padding-top: 3pt; }
+.passenger-table { -fs-table-paginate: paginate; font-size: 8.5pt; margin-bottom: 14pt; }
+.passenger-table thead { display: table-header-group; }
+.passenger-table tr { page-break-inside: avoid; }
+.passenger-table th { background: #e7f1fa; text-align: left; font-size: 8pt; padding: 10pt 4pt; }
+.passenger-table td { border: .4pt solid #bec5cc; padding: 7pt 4pt; }
+.number-col { width: 4%; } .name-col { width: 26%; } .age-col { width: 6%; }
+.gender-col { width: 10%; } .status-col { width: 27%; }
+.payment-section { border-top: 1pt solid #000; padding-top: 4pt; page-break-inside: avoid; }
+.payment-section p { margin-bottom: 7pt; }
+.fare { color: #2368a7; font-size: 11pt; margin: 0 0 8pt; }
+.payment-status, .cancelled { font-weight: bold; font-size: 10pt; }
+.note, .ticket-notes { color: #555e69; }
+.ticket-notes { border-top: 1pt solid #000; padding-top: 10pt; margin-top: 10pt; font-size: 8.5pt; page-break-inside: avoid; }
+.demo-note { font-weight: bold; font-size: 9pt; margin-bottom: 7pt; }
+.page-footer { position: running(ticketFooter); font-size: 8pt; color: #555e69; width: 100%; }
+.page-number { float: right; }
+.current-page:before { content: counter(page); }
+.total-pages:before { content: counter(pages); }

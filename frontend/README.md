@@ -135,7 +135,7 @@ After creating a booking, select **Download ticket PDF** on its confirmation car
 - Authentication: `Authorization: Bearer <access-token>`; ownership is resolved from the authenticated principal, not a request user ID. A different account, including an administrator, cannot download another account's ticket.
 - Success: `200 application/pdf`, `Content-Disposition: attachment; filename="ticket-{bookingId}.pdf"` and `Cache-Control: private, no-store, max-age=0`.
 - Missing or unowned PNR: `404`; unauthenticated requests: `401`.
-- PDF generation is entirely in Java. `BookingPdfService` resolves the saved booking, and `pdf/TicketPdfTemplate.java` produces the reference-style reservation slip with Apache PDFBox. Template notes and embedded font licenses are in `src/main/resources/templates/ticket/`.
+- PDF generation stays in the backend. `BookingPdfService` resolves the saved booking. Thymeleaf fills `src/main/resources/templates/ticket/ticket.html`, and OpenHTMLtoPDF converts it to PDF using `ticket.css`. `pdf/TicketView.java` formats values; `pdf/TicketPdfTemplate.java` only connects the template and renderer. Editing instructions and embedded font licenses are in the template directory.
 - The browser fetches the binary response with the shared token-refresh handling and saves a Blob. It does not generate the PDF or put credentials in download URLs. Errors are shown on the card, and an error response is not saved as a PDF.
 - Downloading does not change bookings, seat availability or payment status. Unpaid reservations remain visibly `NOT_PAID`. Quota and berth information are not modelled, so they are not invented. The existing missing overnight day offsets also mean arrival date is not inferred in the PDF.
 
