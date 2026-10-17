@@ -67,6 +67,7 @@ export function clearAuth() {
   [localStorage, sessionStorage].forEach(store => {
     [ACCESS_KEY, REFRESH_KEY, USER_KEY].forEach(key => store.removeItem(key));
   });
+  ["railway_search", "railway_selected_train"].forEach(key => sessionStorage.removeItem(key));
   notifyAuth();
 }
 let refreshPromise;
@@ -110,7 +111,7 @@ export async function apiRequest(path, options = {}) {
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
     if (response.status === 401 && protectedRequest) clearAuth();
-    throw new Error(body.message || body.error || `Request failed (${response.status})`);
+    throw new Error(body.message || body.error || Object.values(body).filter(v => typeof v === "string").join(" ") || `Request failed (${response.status})`);
   }
   return body;
 }

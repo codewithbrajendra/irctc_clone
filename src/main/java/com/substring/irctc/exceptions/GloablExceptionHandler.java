@@ -26,6 +26,19 @@ import java.util.NoSuchElementException;
 @RestControllerAdvice
 public class GloablExceptionHandler {
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> invalidInput(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage(), "400", false));
+    }
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> conflict(IllegalStateException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(ex.getMessage(), "409", false));
+    }
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> forbidden() {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse("You do not have permission.", "403", false));
+    }
+
     //pure project ke kie lie: hai
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<ErrorResponse> handleNoSuchException(NoSuchElementException exception) {

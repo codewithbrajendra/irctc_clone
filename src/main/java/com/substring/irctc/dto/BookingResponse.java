@@ -14,6 +14,10 @@ import java.util.List;
 @Setter
 public class BookingResponse {
     private Long bookingId;
+    private Long trainScheduleId;
+    private String trainName;
+    private String trainNumber;
+    private java.time.LocalDateTime createdAt;
     private LocalDate journeyDate;
     private LocalTime departureTime;
     private LocalTime arrivalTime;

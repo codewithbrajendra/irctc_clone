@@ -25,7 +25,7 @@ public class TrainController {
     //search trains
     @PostMapping("/search")
     public ResponseEntity<List<AvailableTrainResponse>> searchTrains(
-            @RequestBody UserTrainSearchRequest userTrainSearchRequest
+            @jakarta.validation.Valid @RequestBody UserTrainSearchRequest userTrainSearchRequest
             ) {
 
         List<AvailableTrainResponse> availableTrainResponses = trainService.userTrainSearch(userTrainSearchRequest);
